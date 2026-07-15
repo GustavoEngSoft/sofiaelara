@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   };
   const FIREBASE_COUNTER_DOC = 'site/config';
   const PIX_KEY = 'seuemail@email.com';
+  const LOCAL_COUNT_FALLBACK = 'site_pray_count_backup_v1';
 
   // Elements
   const prayBtn = document.getElementById('pray-button');
@@ -27,7 +28,32 @@ document.addEventListener('DOMContentLoaded', ()=>{
     prayCountEl.textContent = Number(value || 0).toLocaleString('pt-BR');
   }
 
-  let count = 0;
+  function getLocalCountBackup(){
+    const raw = localStorage.getItem(LOCAL_COUNT_FALLBACK);
+    const parsed = raw ? parseInt(raw, 10) : 0;
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  function setLocalCountBackup(value){
+    localStorage.setItem(LOCAL_COUNT_FALLBACK, String(value));
+  }
+
+  async function syncCountToFirebase(value){
+    if(!firebaseDocRef || !firebaseDb){
+      return;
+    }
+
+    await firebaseDb.runTransaction(async (transaction)=>{
+      const snapshot = await transaction.get(firebaseDocRef);
+      const currentCount = snapshot.exists && typeof snapshot.data().count === 'number'
+        ? snapshot.data().count
+        : 0;
+      const nextCount = Math.max(currentCount, value);
+      transaction.set(firebaseDocRef, {count: nextCount}, {merge:true});
+    });
+  }
+
+  let count = getLocalCountBackup();
   setCountValue(count);
 
   if(hasFirebaseConfig && window.firebase && !firebase.apps.length){
@@ -37,61 +63,43 @@ document.addEventListener('DOMContentLoaded', ()=>{
   }
 
   async function loadPrayerCount(){
-    if(firebaseDocRef){
-      try{
-        const snapshot = await firebaseDocRef.get();
-        if(snapshot.exists){
-          const data = snapshot.data();
-          if(typeof data.count === 'number'){
-            count = data.count;
-            setCountValue(count);
-            return;
-          }
-        }
-        await firebaseDocRef.set({count: 0}, {merge:true});
-        count = 0;
-        setCountValue(count);
-      }catch(e){
-        console.warn('Firebase indisponível, usando contador local.', e);
-      }
+    if(!firebaseDocRef){
+      setCountValue(count);
+      return;
     }
+
+    try{
+      const snapshot = await firebaseDocRef.get();
+      if(snapshot.exists){
+        const data = snapshot.data();
+        if(typeof data.count === 'number'){
+          count = Math.max(count, data.count);
+          setLocalCountBackup(count);
+          setCountValue(count);
+          return;
+        }
+      }
+      await firebaseDocRef.set({count}, {merge:true});
+    }catch(e){
+      console.warn('Firebase indisponível, mantendo contador local.', e);
+    }
+
     setCountValue(count);
   }
 
   async function incrementPrayerCount(){
-    if(firebaseDocRef){
-      try{
-        await firebaseDb.runTransaction(async (transaction)=>{
-          const snapshot = await transaction.get(firebaseDocRef);
-          const currentCount = snapshot.exists && typeof snapshot.data().count === 'number'
-            ? snapshot.data().count
-            : count;
-          const nextCount = currentCount + 1;
-          transaction.set(firebaseDocRef, {count: nextCount}, {merge:true});
-          count = nextCount;
-        });
-        setCountValue(count);
-        return;
-      }catch(e){
-        console.warn('Falha ao atualizar o contador no Firebase, mantendo fallback local.', e);
-      }
-    }
-
     count = count + 1;
+    setLocalCountBackup(count);
     setCountValue(count);
+
+    try{
+      await syncCountToFirebase(count);
+    }catch(e){
+      console.warn('Falha ao atualizar o contador no Firebase, mantendo fallback local.', e);
+    }
   }
 
   loadPrayerCount();
-
-  prayBtn.addEventListener('click', async ()=>{
-    if(prayBtn.disabled) return;
-    prayBtn.disabled = true;
-    // optimistic UI
-    await incrementPrayerCount();
-    prayBtn.textContent = 'Obrigado por interceder';
-    localStorage.setItem(STORAGE_PRAYED, '1');
-
-  });
 
   if(pixKeyEl){
     pixKeyEl.textContent = PIX_KEY;
@@ -173,23 +181,41 @@ document.addEventListener('DOMContentLoaded', ()=>{
     });
   }
   function escapeHtml(s){ return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
-      if(prayBtn.disabled) return;
-      prayBtn.disabled = true;
-      const originalText = prayBtn.textContent;
-      prayBtn.textContent = 'Registrando...';
+
   if(testiForm && testiName && testiMessage){
     testiForm.addEventListener('submit', (e)=>{
-      prayBtn.textContent = 'Obrigado por interceder';
-      setTimeout(()=>{
-        prayBtn.disabled = false;
-        prayBtn.textContent = originalText;
-      }, 1500);
+      e.preventDefault();
+      const name = testiName.value.trim();
+      const msg = testiMessage.value.trim();
       if(!name || !msg) return;
       const arr = loadTestimonials();
       arr.push({name:name,msg:msg});
       saveTestimonials(arr);
-      testiName.value=''; testiMessage.value='';
+      testiName.value='';
+      testiMessage.value='';
       renderTestimonials();
+    });
+  }
+
+  if(prayBtn){
+    prayBtn.addEventListener('click', async ()=>{
+      if(prayBtn.disabled) return;
+      prayBtn.disabled = true;
+      const originalText = prayBtn.textContent;
+      prayBtn.textContent = 'Registrando...';
+
+      try{
+        await incrementPrayerCount();
+        prayBtn.textContent = 'Obrigado por interceder';
+      }catch(e){
+        console.warn('Não foi possível registrar a oração.', e);
+        prayBtn.textContent = 'Tentar novamente';
+      }finally{
+        setTimeout(()=>{
+          prayBtn.disabled = false;
+          prayBtn.textContent = originalText;
+        }, 1200);
+      }
     });
   }
 
