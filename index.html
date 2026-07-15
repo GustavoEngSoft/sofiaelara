@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Sofia & Lara | Mission Portal</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+  </head>
+  <body>
+    <div class="page-glow page-glow-a"></div>
+    <div class="page-glow page-glow-b"></div>
+    <main class="container">
+      <!-- Hero -->
+      <section class="hero">
+        <div class="hero-chip">Mission Portal • Live</div>
+        <img src="/profile.jpeg" alt="Sofia e Lara" class="hero-photo">
+        <h1 class="names">Sofia & Lara</h1>
+        <p class="subtitle">Jovens em movimento, guiadas por fé, propósito e envio.</p>
+        <div class="hero-meta">
+          <span>Fé em ação</span>
+          <span>Conexão viva</span>
+          <span>Chamado missionário</span>
+        </div>
+        <button id="btn-story" class="btn primary">Explorar a jornada</button>
+      </section>
+
+      <!-- Verse card -->
+      <section class="verse-card">
+        <p class="section-kicker">Palavra que move</p>
+        <blockquote>“Ide por todo o mundo e pregai o evangelho a toda criatura.”</blockquote>
+        <cite>Marcos 16:15</cite>
+      </section>
+
+      <!-- Timeline / Our story (placeholder for user-provided story) -->
+      <section id="story" class="story story-editable">
+        <h2>Nossa origem</h2>
+        <p class="story-intro">
+          Somos Sofia e Lara, irmãs que cresceram cercadas pela presença de Deus e aprenderam, desde cedo, a responder ao chamado com simplicidade e coragem.
+
+          Hoje caminhamos em obediência, servindo na Zion Campo Grande e vivendo uma fé que sai do discurso e se torna prática nas ruas, na igreja e no cuidado com as pessoas.
+
+          Nesta nova estação, seguimos para a Dunamis Movement e para o 1Luv com expectativa, prontas para crescer, ser alinhadas e viver tudo o que Deus já escreveu para esta jornada.
+        </p>
+        <div class="story-highlights">
+          <span>Raiz cristã</span>
+          <span>Serviço prático</span>
+          <span>Envio</span>
+        </div>
+      </section>
+
+      <!-- The calling / parents -->
+      <section class="calling">
+        <h2>O chamado</h2>
+        <img src="/sorrindo.jpeg" alt="As meninas sorrindo" class="call-photo">
+        <p>
+          Cremos em uma vida totalmente rendida a Deus, marcada por presença, serviço e coragem para anunciar o Seu amor onde estivermos.
+
+          A direção para a Dunamis Movement e o 1Luv representa uma estação de treinamento e envio, onde adolescentes são formados para viver o Evangelho de forma prática e influente.
+
+          Seguimos com expectativa, buscando amadurecimento espiritual, clareza de propósito e uma fé que transforme ambientes, escolas, famílias e cidades.
+        </p>
+        <p class="verse-inline">“Eis-me aqui. Envia-me a mim.” <span>Isaías 6:8</span></p>
+      </section>
+
+      <!-- Testimonials carousel -->
+      <section class="testimonials">
+        <h2>Vozes que sustentam</h2>
+        <p class="muted">Mensagens de oração, encorajamento e cobertura espiritual para esta jornada.</p>
+        <div class="testimonials-grid" id="testimonials-list">
+          <!-- dynamic testimonials will render here -->
+        </div>
+
+      </section>
+
+      <!-- Gallery -->
+      <section class="gallery">
+        <h2>Memórias</h2>
+        <div class="grid">
+          <img src="/lara.jpeg" alt="Sofia e Lara em uma foto da galeria" class="thumb">
+          <img src="/sofia.jpeg" alt="Sofia e Lara em outra foto da galeria" class="thumb">
+        </div>
+       
+      </section>
+
+      <!-- Prayer reasons and counter -->
+      <section class="prayer">
+        <h2>Intercessão</h2>
+        <p class="muted">Um espaço para manter a cobertura espiritual ativa e objetiva.</p>
+        <ul class="reasons">
+          <li>Sabedoria para cada decisão</li>
+          <li>Proteção em cada deslocamento</li>
+          <li>Saúde física, emocional e espiritual</li>
+          <li>Provisionamento e sustento</li>
+          <li>Vidas alcançadas pelo Evangelho</li>
+        </ul>
+
+        <div class="prayer-counter">
+          <div class="count" id="pray-count">0</div>
+          <button id="pray-button" class="btn primary">Já intercedi por elas</button>
+        </div>
+      </section>
+
+      <!-- Donations / PIX -->
+      <section class="donate">
+        <h2>Contribuição</h2>
+        <p class="donate-text">Se desejar semear nesta missão, use a chave PIX abaixo.</p>
+        <div class="pix-key-box" aria-label="Chave PIX">
+          <span class="pix-label">PIX</span>
+          <span id="pix-key" class="pix-key">seuemail@email.com</span>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="site-footer">
+        <p>Obrigado por caminhar com Sofia & Lara nesta missão.</p>
+      </footer>
+    </main>
+
+    <a id="whatsapp-fab" class="whatsapp-fab" href="#" target="_blank" rel="noopener noreferrer" aria-label="Entrar em contato pelo WhatsApp">
+      <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+        <path d="M12.04 2C6.52 2 2.04 6.48 2.04 12c0 1.76.46 3.47 1.32 4.99L2 22l5.17-1.35A9.94 9.94 0 0 0 12.04 22C17.56 22 22.04 17.52 22.04 12S17.56 2 12.04 2Zm0 18a7.9 7.9 0 0 1-4.03-1.1l-.29-.17-3.07.8.82-3-.19-.31A7.96 7.96 0 1 1 12.04 20Zm4.62-5.95c-.25-.12-1.48-.73-1.71-.82-.23-.08-.4-.12-.57.12-.17.25-.66.82-.81.99-.15.17-.3.19-.55.06-.25-.12-1.05-.39-2-.9-.74-.4-1.24-.88-1.39-1.13-.15-.25-.02-.39.11-.52.11-.11.25-.3.37-.45.12-.15.16-.25.25-.42.08-.17.04-.31-.02-.43-.06-.12-.57-1.37-.78-1.88-.2-.49-.4-.42-.57-.43h-.49c-.17 0-.43.06-.66.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.45 1.03 2.62.12.17 1.79 2.73 4.33 3.83.61.26 1.08.42 1.45.53.61.19 1.17.16 1.61.1.49-.07 1.48-.6 1.69-1.17.21-.56.21-1.04.15-1.17-.06-.12-.23-.19-.48-.31Z"/>
+      </svg>
+      WhatsApp
+    </a>
+
+    <audio id="background-music" loop>
+        <source src="/trilha.mp3" type="audio/mp3">
+    </audio>
+
+    <script src="js/script.js"></script>
+  </body>
+</html>
