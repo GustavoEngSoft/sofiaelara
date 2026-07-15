@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   const prayCountEl = document.getElementById('pray-count');
   const pixKeyEl = document.getElementById('pix-key');
   const whatsappFab = document.getElementById('whatsapp-fab');
+  const backgroundMusic = document.getElementById('background-music');
 
   const hasFirebaseConfig = Object.values(FIREBASE_CONFIG).every(value => value && value.trim());
   let firebaseDb = null;
@@ -107,6 +108,26 @@ document.addEventListener('DOMContentLoaded', ()=>{
     const whatsappParts = ['67', '9910', '17841'];
     const whatsappNumber = whatsappParts.join('');
     whatsappFab.href = `https://wa.me/55${whatsappNumber}`;
+  }
+
+  if(backgroundMusic){
+    const tryPlayMusic = async ()=>{
+      try{
+        backgroundMusic.volume = 0.55;
+        await backgroundMusic.play();
+        document.removeEventListener('pointerdown', tryPlayMusic);
+        document.removeEventListener('touchstart', tryPlayMusic);
+        document.removeEventListener('keydown', tryPlayMusic);
+      }catch(e){
+        console.warn('Autoplay bloqueado pelo navegador; a trilha será iniciada no primeiro toque.', e);
+      }
+    };
+
+    backgroundMusic.addEventListener('canplay', tryPlayMusic, {once:true});
+    backgroundMusic.addEventListener('loadedmetadata', tryPlayMusic, {once:true});
+    document.addEventListener('pointerdown', tryPlayMusic, {once:true});
+    document.addEventListener('touchstart', tryPlayMusic, {once:true});
+    document.addEventListener('keydown', tryPlayMusic, {once:true});
   }
 
   // Lightbox gallery
