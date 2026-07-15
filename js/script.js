@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     measurementId: 'G-KYD60L821L',
   };
   const FIREBASE_COUNTER_DOC = 'site/config';
-  const PIX_KEY = 'seuemail@email.com';
+  const PIX_KEY = '(67)998134-6266';
   const LOCAL_COUNT_FALLBACK = 'site_pray_count_backup_v1';
 
   // Elements
@@ -154,18 +154,30 @@ document.addEventListener('DOMContentLoaded', ()=>{
   const testiName = document.getElementById('testi-name');
   const testiMessage = document.getElementById('testi-message');
 
+  const fixedTestimonials = [
+    {name:'Papai e Mamãe', msg:'Nós, como pais, acreditamos e impulsionamos elas a cumprirem seu chamado. Ainda na primeira infância foram marcadas pelo Espírito Santo e hoje vivem a escolha diária de amar Jesus e trazer o Seu Reino para a terra.'},
+    {name:'Sofia', msg:'Eu espero ser treinada e moldada por Deus neste tempo. Já recebi palavras sobre nações e liderança, e também recebi uma dor do Senhor pelos perdidos. Creio que o MEGA CREW é o lugar onde Deus vai me preparar para isso. Quero aprender a levar Jesus para dentro das escolas com ousadia e amor. Eu não quero só fazer parte; eu quero ser usada pelo Senhor para levá-Lo aos perdidos.'},
+    {name:'Lara', msg:'Sinto que estou no caminho certo e, mais do que tudo, espero ser treinada e moldada por Ele neste tempo. Com o coração alinhado ao meu chamado, coloco diante de Deus os meus objetivos: preparação no MEGA CREW, influência com caráter e ousadia, e uma vida disponível para ser usada ativamente pelo Senhor para alcançar e resgatar os perdidos.'}
+  ];
+
   function loadTestimonials(){
     const raw = localStorage.getItem(TESTI_KEY);
-    const defaults = [
-      {name:'Papai e Mamãe', msg:'Ver Sofia e Lara respondendo ao chamado com sensibilidade e coragem é motivo de alegria e gratidão. Que Deus continue conduzindo cada passo dessa jornada.'},
-      {name:'Amigos e irmãos', msg:'A vida delas inspira fé prática, serviço e amor ao próximo. Oramos para que essa estação seja marcada por crescimento e frutificação.'}
-    ];
-    if(!raw) return defaults;
+    if(!raw) return fixedTestimonials;
     try{
       const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) && parsed.length ? parsed : defaults;
+      if(!Array.isArray(parsed) || !parsed.length){
+        return fixedTestimonials;
+      }
+      const merged = [...fixedTestimonials, ...parsed];
+      const seen = new Set();
+      return merged.filter((item)=>{
+        const key = `${item.name}::${item.msg}`;
+        if(seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
     }catch(e){
-      return defaults;
+      return fixedTestimonials;
     }
   }
   function saveTestimonials(arr){ localStorage.setItem(TESTI_KEY, JSON.stringify(arr)); }
@@ -181,6 +193,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
     });
   }
   function escapeHtml(s){ return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+
+  renderTestimonials();
 
   if(testiForm && testiName && testiMessage){
     testiForm.addEventListener('submit', (e)=>{
