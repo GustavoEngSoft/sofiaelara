@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     measurementId: 'G-KYD60L821L',
   };
   const FIREBASE_COUNTER_DOC = 'site/config';
-  const PIX_KEY = '(67)998134-6266';
+  const PIX_KEY = '(67)98134-6266';
   const LOCAL_COUNT_FALLBACK = 'site_pray_count_backup_v1';
 
   // Elements
