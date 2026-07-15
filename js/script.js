@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   };
   const FIREBASE_COUNTER_DOC = 'site/config';
   const PIX_KEY = 'seuemail@email.com';
-  const STORAGE_PRAYED = 'site_prayed_v1';
 
   // Elements
   const prayBtn = document.getElementById('pray-button');
@@ -35,12 +34,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
     firebase.initializeApp(FIREBASE_CONFIG);
     firebaseDb = firebase.firestore();
     firebaseDocRef = firebaseDb.doc(FIREBASE_COUNTER_DOC);
-  }
-
-  // Disable if already prayed on this device
-  if(localStorage.getItem(STORAGE_PRAYED)){
-    prayBtn.disabled = true;
-    prayBtn.textContent = 'Intercessão registrada';
   }
 
   async function loadPrayerCount(){
@@ -180,13 +173,17 @@ document.addEventListener('DOMContentLoaded', ()=>{
     });
   }
   function escapeHtml(s){ return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
-  renderTestimonials();
-
+      if(prayBtn.disabled) return;
+      prayBtn.disabled = true;
+      const originalText = prayBtn.textContent;
+      prayBtn.textContent = 'Registrando...';
   if(testiForm && testiName && testiMessage){
     testiForm.addEventListener('submit', (e)=>{
-      e.preventDefault();
-      const name = testiName.value.trim();
-      const msg = testiMessage.value.trim();
+      prayBtn.textContent = 'Obrigado por interceder';
+      setTimeout(()=>{
+        prayBtn.disabled = false;
+        prayBtn.textContent = originalText;
+      }, 1500);
       if(!name || !msg) return;
       const arr = loadTestimonials();
       arr.push({name:name,msg:msg});
